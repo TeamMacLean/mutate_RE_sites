@@ -53,13 +53,13 @@ for line in fh:
     line=line.rstrip()
     if line=="": continue
     linearray=line.split()
-    restriction_sites.append(linearray[1])
-    restriction_sites.append(reverse_complement(linearray[1]))
+    restriction_sites.append(linearray[1].upper())
+    restriction_sites.append(reverse_complement(linearray[1]).upper())
     restriction_sites_lengths.append(len(linearray[1]))
 
 fh.close()
-print(restriction_sites)
-print(restriction_sites_lengths)
+#print(restriction_sites)
+#print(restriction_sites_lengths)
 
 min_cut_site_length=min(restriction_sites_lengths)
 max_cut_site_length=max(restriction_sites_lengths)
@@ -236,30 +236,33 @@ def find_re_and_replace_codon(ntseq):
         found, re_site = look_in_re_sites(subseq)
 
         if found == True:
-
+	    #print "subseq ", subseq
             re_start_point=re_site_start(re_site, subseq) + 1
             re_end_point = re_start_point + len(re_site) -1
-            print "Found restriction site ", re_site
-            print "RE start point ", re_start_point, " and end point ", re_end_point
+            #print "Found restriction site ", re_site
+            #print "RE start point ", re_start_point, " and end point ", re_end_point
 
             if re_start_point==1 and re_end_point==6:
                 codon_to_change=subseq[:6]
                 new_subseq=change_cut_site(codon_to_change)
-            elif re_start_point==4 and re_end_point==9:     #the fist codon is not in the RE site, so dont pass to the function to remove RE site
+            elif re_start_point>=4 and re_end_point<=9:     #the fist codon is not in the RE site, so dont pass to the function to remove RE site
                 codon_to_change=subseq[3:]
                 stay_back=subseq[:3]
+		#print "codon to change ", codon_to_change
                 new_subseq = change_cut_site(codon_to_change)
                 new_subseq=stay_back + new_subseq
-                print "left over added ", new_subseq
+               # print "left over added ", new_subseq
 
             else:                                           #cut out the nucleotides to the right of the RE site
 
-                if re_end_point%3!=0:
-                    subseq=subseq[:re_end_point]
+                if re_end_point%3==1:
+		    new_ntseq+=subseq[0]
+                    subseq=subseq[1:re_end_point]
 
+		#print "changing subseq ", subseq
                 #change the aminoacid now
                 new_subseq = change_cut_site(subseq)
-                print "After changing nt in subseq ", new_subseq
+                #print "After changing nt in subseq ", new_subseq
 
             new_ntseq+=new_subseq
             position=len(new_ntseq)
@@ -280,7 +283,7 @@ outfilehandler=open(options.output, "w")
 ##print restriction_sites
 for rec in SeqIO.parse(fastafile, "fasta"):
     seqid=rec.id
-    ntseq=str(rec.seq)
+    ntseq=str(rec.seq).upper()
 
     new_ntseq=find_re_and_replace_codon(ntseq)
     ##print "Before ", ntseq
