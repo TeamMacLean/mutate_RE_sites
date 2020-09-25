@@ -147,7 +147,7 @@ def change_cut_site(subseq):
                         high_scoring_codons[aa_codon]={"score":highest_score, "original_codon":origcodon}
 
 
-    print("Highest scoring codons ", high_scoring_codons)
+    #print("Highest scoring codons ", high_scoring_codons)
     #lets find the highest scoring codon and its score
     highest_scoring_codon=""
     highest_score=0
@@ -162,15 +162,15 @@ def change_cut_site(subseq):
             original_codon_at_highest_score=high_scoring_codons[codon]["original_codon"]
 
 
-    print ("highest scoring codon ", highest_scoring_codon, "highest score ", highest_score, "original codon ", original_codon_at_highest_score)
+    #print ("highest scoring codon ", highest_scoring_codon, "highest score ", highest_score, "original codon ", original_codon_at_highest_score)
     #now lets reconstruct the sequence with highest scoring codon
     ntseq=""
     has_changed=False
     #for codon in list_of_codons_in_frame:
     for codon in map(''.join, zip(*[iter(subseq)]*3)):
-        print("codon in frame",codon)
+        #print("codon in frame",codon)
         if codon == original_codon_at_highest_score and has_changed==False:
-            print("Changing codon ", codon, " to ", highest_scoring_codon)
+            #print("Changing codon ", codon, " to ", highest_scoring_codon)
             ntseq+=highest_scoring_codon
             has_changed=True
         else:
@@ -180,7 +180,7 @@ def change_cut_site(subseq):
 
     #ntseq=ntseq+bases_left_at_right
 
-    print("Returning after re mutation", ntseq)
+    #print("Returning after re mutation", ntseq)
     return ntseq
 
     #highest_scoring_codon=sorted(high_scoring_codons["score"], key=high_scoring_codons["score"].__getitem__, reverse=True)[0]
@@ -224,11 +224,11 @@ def find_re_and_replace_codon(ntseq):
         found, re_site = look_in_re_sites(subseq)
 
         if found == True:
-            print("subseq ", subseq)
+            #print("subseq ", subseq)
             re_start_point=re_site_start(re_site, subseq) + 1
             re_end_point = re_start_point + len(re_site) -1
             #print("Found restriction site ", re_site)
-            print("RE start point ", re_start_point, " and end point ", re_end_point)
+            #print("RE start point ", re_start_point, " and end point ", re_end_point)
             #time.sleep(3)
             
             
@@ -248,7 +248,7 @@ def find_re_and_replace_codon(ntseq):
             stay_back = subseq[:re_start_point-1]
             new_subseq = change_cut_site(codon_to_change)
             new_subseq = stay_back + new_subseq + subseq[re_end_point:]
-            print("left unuse ", stay_back, "codon to change", codon_to_change, "right unuse ", subseq[re_end_point:])
+            #print("left unuse ", stay_back, "codon to change", codon_to_change, "right unuse ", subseq[re_end_point:])
                 #if re_end_point%3 ==1:
                 #    stay_back = subseq[0]
                 #    new_ntseq+=stay_back
