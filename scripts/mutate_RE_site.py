@@ -3,7 +3,7 @@
 import os, sys
 import argparse
 from Bio import SeqIO
-from string import maketrans
+import time
 
 Description="Program to recognise restriction enzyme sites and mutate or replace a nucleotide in the restriction site with another nucleotide such that it does not change the amino acid and the new codon has the highest score of occurrence as shown in the codon file"
 usage="""
@@ -34,13 +34,14 @@ else:
 
 
 def reverse_complement(ntseq):
-        #reverse the ntseq
-        ntseq=ntseq[::-1]
-        from_this="actgnACTGN"
-        to_this="tgacnTGACN"
 
-        #complement the ntseq and return
-        return ntseq.translate(maketrans(from_this, to_this))
+    #reverse the ntseq
+    ntseq=ntseq[::-1]
+    from_this="actgnACTGN"
+    to_this="tgacnTGACN"
+
+    #complement the ntseq and return
+    return ntseq.translate(str.maketrans(from_this, to_this))
 
 
 
@@ -99,17 +100,6 @@ codonfile.close()
 #print codons
 #print codon_nucleotides
 
-
-def reverse_complement(ntseq):
-        #reverse the ntseq
-        ntseq=ntseq[::-1]
-        from_this="actgnACTGN"
-        to_this="tgacnTGACN"
-
-        #complement the ntseq and return
-        return ntseq.translate(maketrans(from_this, to_this))
-
-
 def get_codon_with_highest_score(aminoacid):
     score=0
     aminoacid_codons=aminoacids[aminoacid]
@@ -136,17 +126,14 @@ def change_cut_site(subseq):
     if subseq in restriction_sites:
         pass
 
-    list_of_codons_in_frame=map(''.join, zip(*[iter(subseq)]*3))
-
-
-    #print list_of_codons_in_frame
     #check where is the alternate codon with highest score
 
     high_scoring_codons={}
-    for origcodon in list_of_codons_in_frame:
+    #for origcodon in (subseq[:3], subseq[3:6], subseq[6:]):
+    for origcodon in map(''.join, zip(*[iter(subseq)]*3)):
         aminoacid=codon_nucleotides[origcodon]  # gets aa for that codon
         codons_for_aminoacid=get_codons_for_aminoacid(aminoacid)
-        ##print "codons for aminoacid ", aminoacid, " are ", codons_for_aminoacid
+        #print("codons for aminoacid ", aminoacid, " are ", codons_for_aminoacid)
         #codons_for_aminoacid.delete(codon) # remove the existing codon from the list
         highest_score=0  #initiate the highest score as 0
         for aa_codon in codons_for_aminoacid:
@@ -160,7 +147,7 @@ def change_cut_site(subseq):
                         high_scoring_codons[aa_codon]={"score":highest_score, "original_codon":origcodon}
 
 
-    #print "Highest scoring codons ", high_scoring_codons
+    print("Highest scoring codons ", high_scoring_codons)
     #lets find the highest scoring codon and its score
     highest_scoring_codon=""
     highest_score=0
@@ -175,13 +162,15 @@ def change_cut_site(subseq):
             original_codon_at_highest_score=high_scoring_codons[codon]["original_codon"]
 
 
-
-    #print "highest scoring codon ", highest_scoring_codon, "highest score ", highest_score, "original codon ", original_codon_at_highest_score
+    print ("highest scoring codon ", highest_scoring_codon, "highest score ", highest_score, "original codon ", original_codon_at_highest_score)
     #now lets reconstruct the sequence with highest scoring codon
     ntseq=""
     has_changed=False
-    for codon in list_of_codons_in_frame:
+    #for codon in list_of_codons_in_frame:
+    for codon in map(''.join, zip(*[iter(subseq)]*3)):
+        print("codon in frame",codon)
         if codon == original_codon_at_highest_score and has_changed==False:
+            print("Changing codon ", codon, " to ", highest_scoring_codon)
             ntseq+=highest_scoring_codon
             has_changed=True
         else:
@@ -191,7 +180,7 @@ def change_cut_site(subseq):
 
     #ntseq=ntseq+bases_left_at_right
 
-    #print "Returning ", ntseq
+    print("Returning after re mutation", ntseq)
     return ntseq
 
     #highest_scoring_codon=sorted(high_scoring_codons["score"], key=high_scoring_codons["score"].__getitem__, reverse=True)[0]
@@ -232,37 +221,43 @@ def find_re_and_replace_codon(ntseq):
     position=0
     while position <= ntseq_length - 1:
         subseq=ntseq[position:position + 9 - (position%3) + 1]
-        #print subseq
         found, re_site = look_in_re_sites(subseq)
 
         if found == True:
-	    #print "subseq ", subseq
+            print("subseq ", subseq)
             re_start_point=re_site_start(re_site, subseq) + 1
             re_end_point = re_start_point + len(re_site) -1
-            #print "Found restriction site ", re_site
-            #print "RE start point ", re_start_point, " and end point ", re_end_point
-
-            if re_start_point==1 and re_end_point==6:
-                codon_to_change=subseq[:6]
-                new_subseq=change_cut_site(codon_to_change)
-            elif re_start_point>=4 and re_end_point<=9:     #the fist codon is not in the RE site, so dont pass to the function to remove RE site
-                codon_to_change=subseq[3:]
-                stay_back=subseq[:3]
-		#print "codon to change ", codon_to_change
-                new_subseq = change_cut_site(codon_to_change)
-                new_subseq=stay_back + new_subseq
-               # print "left over added ", new_subseq
-
-            else:                                           #cut out the nucleotides to the right of the RE site
-
-                if re_end_point%3==1:
-		    new_ntseq+=subseq[0]
-                    subseq=subseq[1:re_end_point]
-
-		#print "changing subseq ", subseq
+            #print("Found restriction site ", re_site)
+            print("RE start point ", re_start_point, " and end point ", re_end_point)
+            #time.sleep(3)
+            
+            
+            #if re_start_point==1 and re_end_point==6:
+            #    codon_to_change=subseq[:6]
+            #    new_subseq=change_cut_site(codon_to_change)
+            #elif re_start_point>=4 and re_end_point<=9:     #the fist codon is not in the RE site, so dont pass to the function to remove RE site
+            #    codon_to_change=subseq[3:]
+            #    stay_back=subseq[:3]
+            #    new_subseq = change_cut_site(codon_to_change)
+            #    new_subseq=stay_back + new_subseq
+            #    print("left unuse", stay_back, "codon to change ", codon_to_change)
+            
+            #else:                                           #cut out the nucleotides to the right of the RE site
+            
+            codon_to_change = subseq[re_start_point-1:re_end_point]
+            stay_back = subseq[:re_start_point-1]
+            new_subseq = change_cut_site(codon_to_change)
+            new_subseq = stay_back + new_subseq + subseq[re_end_point:]
+            print("left unuse ", stay_back, "codon to change", codon_to_change, "right unuse ", subseq[re_end_point:])
+                #if re_end_point%3 ==1:
+                #    stay_back = subseq[0]
+                #    new_ntseq+=stay_back
+                #    subseq=subseq[1:]
+                #print("left unuse ", stay_back, "codon to change", subseq)
+                #print("changing subseq ", subseq)
                 #change the aminoacid now
-                new_subseq = change_cut_site(subseq)
-                #print "After changing nt in subseq ", new_subseq
+                #new_subseq = change_cut_site(subseq)
+                #print("After changing nt in subseq ", new_subseq)
 
             new_ntseq+=new_subseq
             position=len(new_ntseq)
@@ -271,8 +266,9 @@ def find_re_and_replace_codon(ntseq):
             new_ntseq+=ntseq[position]
             position +=1
 
-        #print "New ntseq ", new_ntseq
-        #print "new position ", position
+        #print("New ntseq ", new_ntseq)
+        #print("new position ", position)
+
     return new_ntseq
 
 
