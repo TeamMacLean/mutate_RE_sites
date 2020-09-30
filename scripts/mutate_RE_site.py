@@ -214,60 +214,39 @@ def re_site_start(resite,sequence):
 def find_re_and_replace_codon(ntseq):
 
     #loop through the RE sites and find the restriction sites
-    ntseq_length=len(ntseq)
-    new_ntseq=""
-    has_changed=False
+    ntseq_length = len(ntseq)
+    new_ntseq = ""
 
     position=0
     while position <= ntseq_length - 1:
-        subseq=ntseq[position:position + 9 - (position%3) + 1]
+        subseq=ntseq[position:position + 9]
         found, re_site = look_in_re_sites(subseq)
 
         if found == True:
-            #print("subseq ", subseq)
+            # print("subseq ", subseq)
             re_start_point=re_site_start(re_site, subseq) + 1
             re_end_point = re_start_point + len(re_site) -1
-            #print("Found restriction site ", re_site)
-            #print("RE start point ", re_start_point, " and end point ", re_end_point)
-            #time.sleep(3)
-            
-            
-            #if re_start_point==1 and re_end_point==6:
-            #    codon_to_change=subseq[:6]
-            #    new_subseq=change_cut_site(codon_to_change)
-            #elif re_start_point>=4 and re_end_point<=9:     #the fist codon is not in the RE site, so dont pass to the function to remove RE site
-            #    codon_to_change=subseq[3:]
-            #    stay_back=subseq[:3]
-            #    new_subseq = change_cut_site(codon_to_change)
-            #    new_subseq=stay_back + new_subseq
-            #    print("left unuse", stay_back, "codon to change ", codon_to_change)
-            
-            #else:                                           #cut out the nucleotides to the right of the RE site
-            
-            codon_to_change = subseq[re_start_point-1:re_end_point]
-            stay_back = subseq[:re_start_point-1]
-            new_subseq = change_cut_site(codon_to_change)
-            new_subseq = stay_back + new_subseq + subseq[re_end_point:]
-            #print("left unuse ", stay_back, "codon to change", codon_to_change, "right unuse ", subseq[re_end_point:])
-                #if re_end_point%3 ==1:
-                #    stay_back = subseq[0]
-                #    new_ntseq+=stay_back
-                #    subseq=subseq[1:]
-                #print("left unuse ", stay_back, "codon to change", subseq)
-                #print("changing subseq ", subseq)
-                #change the aminoacid now
-                #new_subseq = change_cut_site(subseq)
-                #print("After changing nt in subseq ", new_subseq)
+            # print("Found restriction site ", re_site)
+            # print("RE start point ", re_start_point, " and end point ", re_end_point)
 
-            new_ntseq+=new_subseq
+            if re_start_point <=3:
+                subseq_to_change = subseq[:6]
+                after_change = change_cut_site(subseq_to_change)
+                new_ntseq += subseq.replace(subseq[:6], after_change)
+                # print("before change ", "subseq to change ", subseq_to_change, subseq, "After change ", after_change)
+            else:
+                subseq_to_change = subseq[3:]
+                after_change = change_cut_site(subseq_to_change)
+                new_ntseq += subseq.replace(subseq[3:], after_change)
+
+                # print("before change ", subseq, "subseq to change ", subseq_to_change, "After change ", after_change)
+            
+            
             position=len(new_ntseq)
 
         else:
-            new_ntseq+=ntseq[position]
-            position +=1
-
-        #print("New ntseq ", new_ntseq)
-        #print("new position ", position)
+            new_ntseq+=ntseq[position:position+3]
+            position +=3
 
     return new_ntseq
 
