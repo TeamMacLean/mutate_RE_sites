@@ -20,7 +20,7 @@ parser.add_argument("--out", action="store", dest="output", default="output.fast
 
 options=parser.parse_args()
 
-print(options)
+
 if not options.codonfile:
     #print "Please provide a codon file showing the occurrences of each codon"
     exit(1)
@@ -134,7 +134,7 @@ def change_cut_site(re_subseq, subseq):
 
     #remove duplicates from the list, if any
     sorted_codon_values_in_re_subseq = list(dict.fromkeys(sorted_codon_values_in_re_subseq))
-    print(sorted_codon_values_in_re_subseq)
+    #print(sorted_codon_values_in_re_subseq)
     ntseq = ""
     codon_replaced=False
     for codon in map(''.join, zip(*[iter(re_subseq)]*3)):
@@ -146,10 +146,10 @@ def change_cut_site(re_subseq, subseq):
             elif aminoacid == aa_for_codon_in_order and codon_replaced==False:
                 
                 # test if replacing with this codon gives another RE site
-                print("replacing ", codon, " by ", codon_in_order, subseq.replace(codon, codon_in_order))
+                #print("replacing ", codon, " by ", codon_in_order, subseq.replace(codon, codon_in_order))
                 found, re_site = look_in_re_sites(subseq.replace(codon, codon_in_order, 1) )
                 if found == True:
-                    print("Found RE site again. Replacing with second best codon value")
+                    #print("Found RE site again. Replacing with second best codon value")
                     continue
                 else:
                     ntseq += codon_in_order
@@ -157,7 +157,7 @@ def change_cut_site(re_subseq, subseq):
                     break
 
             else:
-                print("Adding nonreplaced codon ", codon)
+                #print("Adding nonreplaced codon ", codon)
                 ntseq += codon
                 break
 
@@ -195,7 +195,7 @@ def get_subseq_after_change(subseq, re_start_point, re_end_point):
         # subseq_after_change = subseq.replace(subseq_to_change, after_change)
         
         new_subseq = subseq.replace(subseq_to_change, after_change)
-        print("before change ", "subseq to change ", subseq_to_change, subseq, "After change ", after_change, new_subseq)
+        #print("before change ", "subseq to change ", subseq_to_change, subseq, "After change ", after_change, new_subseq)
     else:
         subseq_to_change = subseq[3:]
         after_change = change_cut_site(subseq_to_change, subseq)
@@ -203,7 +203,7 @@ def get_subseq_after_change(subseq, re_start_point, re_end_point):
         
         new_subseq = subseq.replace(subseq_to_change, after_change)
 
-        print("before change ", subseq, "subseq to change ", subseq_to_change, "After change ", after_change, new_subseq)
+        #print("before change ", subseq, "subseq to change ", subseq_to_change, "After change ", after_change, new_subseq)
 
     return subseq_to_change, after_change, new_subseq
 
@@ -219,11 +219,11 @@ def find_re_and_replace_codon(ntseq):
         found, re_site = look_in_re_sites(subseq)
       
         if found == True:
-            print("subseq ", subseq)
+            #print("subseq ", subseq)
             re_start_point=re_site_start(re_site, subseq) + 1
             re_end_point = re_start_point + len(re_site) -1
-            print("Found restriction site ", re_site)
-            print("RE start point ", re_start_point, " and end point ", re_end_point)
+            #print("Found restriction site ", re_site)
+            #print("RE start point ", re_start_point, " and end point ", re_end_point)
 
             subseq_to_change, subseq_after_change, new_subseq = get_subseq_after_change(subseq, re_start_point, re_end_point)
             new_ntseq += new_subseq
