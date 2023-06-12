@@ -36,7 +36,15 @@ else:
 
 
 def reverse_complement(ntseq):
-
+    """
+    Reverse complement a nucleotide sequence.
+    
+    Args:
+        ntseq (str): Nucleotide sequence
+        
+    Returns:
+        str: Reverse complement of the input sequence
+    """
     #reverse the ntseq
     ntseq=ntseq[::-1]
     from_this="actgnACTGN"
@@ -47,7 +55,15 @@ def reverse_complement(ntseq):
 
 
 def get_restriction_site(re_sites):
-
+    """
+    Read the restriction enzyme sites from a file.
+    
+    Args:
+        re_sites (str): Path to the file containing restriction enzyme sites
+        
+    Returns:
+        tuple: A tuple containing two lists - restriction_sites and restriction_sites_lengths
+    """
     #read the restriction enzyme sites
 
     restriction_sites=[]
@@ -66,7 +82,15 @@ def get_restriction_site(re_sites):
 
 
 def get_codon_scores(codonfile):
-
+    """
+    Read the amino acid codons and their occurrence scores from a file.
+    
+    Args:
+        codonfile (str): Path to the file containing codons with occurrence scores
+        
+    Returns:
+        dict: A dictionary with amino acids as keys and dictionaries of codons and their occurrence scores as values
+    """
     # read the amino acid codons and their values
     aminoacids_codons_values = dict()
     with open(codonfile) as fcon:
@@ -89,13 +113,27 @@ def get_codon_scores(codonfile):
     return aminoacids_codons_values
 
 def sort_codons_by_values(aa_codons):
-    ''' sort aminoacid codons by value:
-    return: list of codon, value pairs
-     '''
+    """
+    Sort amino acid codons by occurrence score in descending order.
+    
+    Args:
+        aa_codons (dict): A dictionary of codons and their occurrence scores for a specific amino acid
+        
+    Returns:
+        list: A list of (codon, value) pairs sorted by occurrence score in descending order
+    """
     return sorted(aa_codons.items(), key=itemgetter(1), reverse=True)
 
 def get_codons_for_aminoacid(aminoacid):
-    ''' get codons for an aminoacid '''
+    """
+    Get a list of codons for a specific amino acid.
+    
+    Args:
+        aminoacid (str): Amino acid
+    
+    Returns:
+        list: A list of codons for the given amino acid
+    """
 
     for aa in aminoacid_codons_values.keys():
         if aa == aminoacid:
@@ -103,7 +141,15 @@ def get_codons_for_aminoacid(aminoacid):
     return None
 
 def get_aminoacid_for_codon(codon):
-    ''' get the aminoacid for a codon '''
+    """
+    Get the amino acid for a specific codon.
+    
+    Args:
+        codon (str): Codon
+        
+    Returns:
+        str: Amino acid corresponding to the given codon
+    """
 
     for aa in aminoacid_codons_values.keys():
         if codon in aminoacid_codons_values[aa].keys():
